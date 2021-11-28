@@ -15,3 +15,7 @@ racket ${pick a file}
 cd ../advent
 racket ${pick a different file}
 ```
+
+## Why is it called upgraded-waffle?
+
+Github has a name generator and I trusted it was better at its job than me.
