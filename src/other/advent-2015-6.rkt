@@ -60,51 +60,43 @@
     (lambda ()
       (for/list ([line (in-lines)])
         (v1-or-v2-func line)))))
-(display "\n")
 
-(let ([c (string->command2 "turn on 489,959 through 759,964")])
-  (display (command-func c))
-  (display (command-from c))
-  (display (command-to c)))
-(display "\n")
+(define (vector-ref-2d vec x y)
+  (vector-ref (vector-ref vec x) y))
 
-(let ([c (string->command2 "turn off 489,959 through 759,964")])
-  (display (command-func c))
-  (display (command-from c))
-  (display (command-to c)))
-(display "\n")
+(define (vector-set-2d! vec x y val)
+  (vector-set! (vector-ref vec x) y val))
+  
 
-(let ([c (string->command2 "toggle 489,959 through 759,964")])
-  (display (command-func c))
-  (display (command-from c))
-  (display (command-to c)))
-
-(display "\n")
-
-(define (apply-command ht cmd)
+(define (apply-command vec cmd)
   (for* ([i (in-range (car (command-from cmd)) (add1 (car (command-to cmd))))]
          [j (in-range (cdr (command-from cmd)) (add1 (cdr (command-to cmd))))])
-    (hash-update!
-     ht
-     (cons i j)
-     (command-func cmd)
-     0)))
+    (let ([current (vector-ref-2d vec i j)]
+          [func (command-func cmd)])
+      (vector-set-2d! vec i j (func current)))))
+
+
+(define (gimme-a-2d-vector-full-of fill)
+  (let ([vec (make-vector 1000)])
+    (for [(i (in-range 0 1000))]
+      (vector-set! vec i (make-vector 1000 fill)))
+    vec))
+     
          
-;; this works, but its hella slow
 ;; solution part 1
 
-;(let ([ht (make-hash)])
-;  (for [(cmd (in-list (get-commands string->command)))]
-;    (apply-command ht cmd))
-;  (for/sum ([present? (in-hash-values ht)])
-;    (if present? 1 0)))
+(let ([vec (gimme-a-2d-vector-full-of #f)])
+  (for [(cmd (in-list (get-commands string->command)))]
+    (apply-command vec cmd))
+  (for/sum ([outer (in-vector vec)])
+    (for/sum ([present? (in-vector outer)])
+      (if present? 1 0))))
 
 ;; solution part 2
 
-(let ([ht (make-hash)])
+(let ([vec (gimme-a-2d-vector-full-of 0)])
   (for [(cmd (in-list (get-commands string->command2)))
         (i (in-naturals))]
-    (time (apply-command ht cmd))
-    (display i)
-    (display "\n"))
-  (for/sum ([v (in-hash-values ht)]) v))
+    (apply-command vec cmd))
+  (for/sum ([outer (in-vector vec)])
+    (for/sum ([inner (in-vector outer)]) inner)))
