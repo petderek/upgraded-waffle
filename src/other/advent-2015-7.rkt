@@ -88,7 +88,7 @@
          (has-args (and first-arg second-arg))
          (func (wire-command wire))]
     (cond
-      [(eq? "b" (wire-out wire))
+      [(string=? "b" (wire-out wire))
        (hash-set!
         ht
         "b"
