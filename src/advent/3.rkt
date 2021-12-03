@@ -18,7 +18,8 @@
    0))
 
 (define (binlist->number binlist)
-  (for/sum [(i (in-range (sub1 (string-length (first in))) -1 -1))
+  (define leftmost-bit (sub1 (string-length (first in))))
+  (for/sum [(i (in-inclusive-range leftmost-bit 0 -1))
             (digit (in-list binlist))]
     (* digit (expt 2 i))))
 
@@ -37,6 +38,9 @@
     [0 1]
     [1 0]))
 
+(define (char->display-number c)
+  (string->number (string c)))
+  
 (define (is-bit i bit)
   (lambda (line)
     (eq?
@@ -52,9 +56,7 @@
       (vector-set!
        buckets
        i
-       (+
-        (vector-ref buckets i)
-        (string->number (string character)))))
+       (+ (vector-ref buckets i) (char->display-number character))))
     (cond
       [(not (empty? lines)) (loop (first lines) (rest lines) buckets)]
       [else
