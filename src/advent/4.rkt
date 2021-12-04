@@ -26,8 +26,10 @@
 (define (get-empty-bingo-sheet)
   (define sheet (make-vector 5))
   (for [(i (in-range 5))]
-    (vector-set! sheet i
-                 (make-vector 5 (node 0 #f))))
+    (vector-set!
+     sheet
+     i
+     (make-vector 5 (node 0 #f))))
   sheet)
 
 (define (populate-bingo-sheet sheet lines)
@@ -92,7 +94,6 @@
         0
         (node-value n))))
     
-
 ;; problem 1
 
 (let loop [(drawn (first bingo-order))
@@ -107,3 +108,18 @@
     [(empty? next) "this shouldn't happen -- no winners but we are out of numbers"]
     [else (loop (first next) (rest next) sheets)]))
 
+;; problem 2
+
+(let loop [(drawn (first bingo-order))
+           (next (rest bingo-order))
+           (sheets (get-bingo-sheets))]
+  (for [(sheet (in-list sheets))]
+    (update-bingo-sheet sheet drawn))
+
+  ; we want to have a single sheet that is marked as a winner
+  (cond
+    [(and (eq? (length sheets) 1) (is-winner? (first sheets)))
+     (* drawn (first (map bingo-sheet-sum sheets)))]
+    [(empty? next) "this shouldn't happen -- no winners but we are out of numbers"]
+    ; filter out all sheets that are winners until only one remains
+    [else (loop (first next) (rest next) (filter (lambda (s) (not (is-winner? s))) sheets))]))
